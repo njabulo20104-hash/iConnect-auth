@@ -1,4 +1,3 @@
-@"
 [build]
   publish = "."
   command = "echo 'No build command'"
@@ -8,4 +7,3 @@
 
 [functions]
   node_bundle = true
-"@ | Out-File -FilePath netlify.toml -Encoding utf8
