@@ -18,7 +18,7 @@ import {
   getDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Firebase config
+// Firebase config - Client keys are safe to be public (frontend)
 const firebaseConfig = {
   apiKey: "AIzaSyCDGnvIzzPBXBlA2R7EnoNJBqn6dtnOjIE",
   authDomain: "iconnect-54a24.firebaseapp.com",
@@ -42,10 +42,12 @@ const githubLoginBtn = document.getElementById("github-login");
 const forgotPasswordLink = document.querySelector(".forgot-password");
 
 // Form Toggle
-toggleToSignup.addEventListener("click", (e) => {
-  e.preventDefault();
-  toggleForms();
-});
+if (toggleToSignup) {
+  toggleToSignup.addEventListener("click", (e) => {
+    e.preventDefault();
+    toggleForms();
+  });
+}
 
 function toggleForms() {
   const isLoginActive = loginForm.classList.contains("active");
@@ -64,10 +66,14 @@ function toggleForms() {
     document.querySelector(".form-header p").innerHTML = 'New user? <a href="#" id="toggle-to-signup">Create an account</a>';
   }
   
-  document.getElementById("toggle-to-signup").addEventListener("click", (e) => {
-    e.preventDefault();
-    toggleForms();
-  });
+  // Re-attach event listener to new toggle link
+  const newToggle = document.getElementById("toggle-to-signup");
+  if (newToggle) {
+    newToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      toggleForms();
+    });
+  }
 }
 
 // Utility Functions
@@ -146,14 +152,11 @@ function setLoading(button, isLoading) {
 // Resend Email Verification Function
 async function sendVerificationEmail(user, userName) {
   try {
-    // Generate a unique verification token (you can use Firebase ID token)
-    const idToken = await user.getIdToken();
+    // Create verification link - using Netlify function
+    const verificationLink = `https://${window.location.hostname}/.netlify/functions/verify-email?uid=${user.uid}`;
     
-    // Create verification link - you'll need to set up an API endpoint
-    const verificationLink = `https://your-backend-domain.com/api/verify-email?token=${idToken}&uid=${user.uid}`;
-    
-    // Send email via Resend API
-    const response = await fetch('/api/send-verification', {
+    // Send email via Netlify function
+    const response = await fetch('/.netlify/functions/send-verification', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -165,8 +168,10 @@ async function sendVerificationEmail(user, userName) {
       })
     });
 
+    const result = await response.json();
+
     if (!response.ok) {
-      throw new Error('Failed to send verification email');
+      throw new Error(result.error || 'Failed to send verification email');
     }
 
     return true;
@@ -177,152 +182,165 @@ async function sendVerificationEmail(user, userName) {
 }
 
 // Enhanced Signup with Resend Email Verification
-signupForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("signup-email").value;
-  const password = document.getElementById("signup-password").value;
-  const name = document.getElementById("signup-name").value;
-  const submitBtn = signupForm.querySelector('.submit-btn');
-  
-  clearError(document.getElementById("signup-name"));
-  clearError(document.getElementById("signup-email"));
-  clearError(document.getElementById("signup-password"));
-  
-  if (!name || !email || !password) {
-    showError(document.getElementById("signup-name"), "Please fill in all fields");
-    return;
-  }
-  
-  if (password.length < 6) {
-    showError(document.getElementById("signup-password"), "Password must be at least 6 characters");
-    return;
-  }
-
-  setLoading(submitBtn, true);
-
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+if (signupForm) {
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
+    const name = document.getElementById("signup-name").value;
+    const submitBtn = signupForm.querySelector('.submit-btn');
     
-    // Update profile with display name
-    await updateProfile(user, {
-      displayName: name
-    });
+    clearError(document.getElementById("signup-name"));
+    clearError(document.getElementById("signup-email"));
+    clearError(document.getElementById("signup-password"));
     
-    // Create user profile in Firestore (initially unverified)
-    await setDoc(doc(db, "users", user.uid), {
-      name: name,
-      email: email,
-      createdAt: new Date(),
-      lastLogin: new Date(),
-      authProvider: 'email',
-      emailVerified: false
-    });
-    
-    console.log("Signup successful:", user.email);
-    
-    // Send verification email via Resend
-    await sendVerificationEmail(user, name);
-    
-    submitBtn.style.background = 'var(--success)';
-    
-    setTimeout(() => {
-      setLoading(submitBtn, false);
-      submitBtn.style.background = '';
-      signupForm.reset();
-      showModal(`Verification email sent to ${email}. Please check your inbox and click the verification link to activate your account.`);
-      toggleForms(); // Switch back to login
-    }, 1500);
-    
-  } catch (err) {
-    console.error("Signup error:", err);
-    setLoading(submitBtn, false);
-    
-    switch (err.code) {
-      case 'auth/email-already-in-use':
-        showError(document.getElementById("signup-email"), "An account with this email already exists");
-        break;
-      case 'auth/invalid-email':
-        showError(document.getElementById("signup-email"), "Invalid email address");
-        break;
-      case 'auth/weak-password':
-        showError(document.getElementById("signup-password"), "Password is too weak. Use at least 6 characters");
-        break;
-      case 'auth/operation-not-allowed':
-        showError(document.getElementById("signup-email"), "Email/password accounts are not enabled");
-        break;
-      default:
-        showError(document.getElementById("signup-email"), "Signup failed. Please try again");
-    }
-  }
-});
-
-// Enhanced Login - Require email verification
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
-  const submitBtn = loginForm.querySelector('.submit-btn');
-  
-  clearError(document.getElementById("login-email"));
-  clearError(document.getElementById("login-password"));
-  
-  if (!email || !password) {
-    showError(document.getElementById("login-email"), "Please fill in all fields");
-    return;
-  }
-
-  setLoading(submitBtn, true);
-
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    // Check if email is verified by checking Firestore
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const userData = userDoc.data();
-    
-    if (userData && !userData.emailVerified) {
-      setLoading(submitBtn, false);
-      showModal("Please verify your email address before signing in. Check your inbox for the verification link.", 'error');
+    if (!name || !email || !password) {
+      showError(document.getElementById("signup-name"), "Please fill in all fields");
       return;
     }
     
-    console.log("Login successful:", user.email);
-    
-    submitBtn.style.background = 'var(--success)';
-    showModal(`Welcome back, ${user.displayName || user.email}! You are now logged in.`);
-    
-    setTimeout(() => {
-      setLoading(submitBtn, false);
-      submitBtn.style.background = '';
-    }, 2000);
-    
-  } catch (err) {
-    console.error("Login error:", err);
-    setLoading(submitBtn, false);
-    
-    switch (err.code) {
-      case 'auth/invalid-email':
-        showError(document.getElementById("login-email"), "Invalid email address");
-        break;
-      case 'auth/user-not-found':
-        showError(document.getElementById("login-email"), "No account found with this email");
-        break;
-      case 'auth/wrong-password':
-        showError(document.getElementById("login-password"), "Incorrect password");
-        break;
-      case 'auth/too-many-requests':
-        showError(document.getElementById("login-email"), "Too many attempts. Account temporarily disabled");
-        break;
-      case 'auth/user-disabled':
-        showError(document.getElementById("login-email"), "This account has been disabled");
-        break;
-      default:
-        showError(document.getElementById("login-email"), "Login failed. Please try again");
+    if (password.length < 6) {
+      showError(document.getElementById("signup-password"), "Password must be at least 6 characters");
+      return;
     }
-  }
-});
+
+    setLoading(submitBtn, true);
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Update profile with display name
+      await updateProfile(user, {
+        displayName: name
+      });
+      
+      // Create user profile in Firestore (initially unverified)
+      await setDoc(doc(db, "users", user.uid), {
+        name: name,
+        email: email,
+        createdAt: new Date(),
+        lastLogin: new Date(),
+        authProvider: 'email',
+        emailVerified: false
+      });
+      
+      console.log("Signup successful:", user.email);
+      
+      // Store user data for redirect
+      localStorage.setItem('currentUser', JSON.stringify({
+        uid: user.uid,
+        email: user.email,
+        displayName: name,
+        emailVerified: false
+      }));
+      
+      // Send verification email via Resend
+      await sendVerificationEmail(user, name);
+      
+      // REDIRECT to email verification page
+      window.location.href = 'email-verified.html';
+      
+    } catch (err) {
+      console.error("Signup error:", err);
+      setLoading(submitBtn, false);
+      
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          showError(document.getElementById("signup-email"), "An account with this email already exists");
+          break;
+        case 'auth/invalid-email':
+          showError(document.getElementById("signup-email"), "Invalid email address");
+          break;
+        case 'auth/weak-password':
+          showError(document.getElementById("signup-password"), "Password is too weak. Use at least 6 characters");
+          break;
+        case 'auth/operation-not-allowed':
+          showError(document.getElementById("signup-email"), "Email/password accounts are not enabled");
+          break;
+        default:
+          showError(document.getElementById("signup-email"), "Signup failed. Please try again");
+      }
+    }
+  });
+}
+
+// Enhanced Login - Require email verification
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+    const submitBtn = loginForm.querySelector('.submit-btn');
+    
+    clearError(document.getElementById("login-email"));
+    clearError(document.getElementById("login-password"));
+    
+    if (!email || !password) {
+      showError(document.getElementById("login-email"), "Please fill in all fields");
+      return;
+    }
+
+    setLoading(submitBtn, true);
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Check if email is verified by checking Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userData = userDoc.data();
+      
+      // Store user data for redirect
+      localStorage.setItem('currentUser', JSON.stringify({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        emailVerified: userData?.emailVerified || false,
+        metadata: user.metadata
+      }));
+      
+      if (userData && !userData.emailVerified) {
+        setLoading(submitBtn, false);
+        showModal("Please verify your email address before signing in. Check your inbox for the verification link.", 'error');
+        // REDIRECT to verification page
+        setTimeout(() => {
+          window.location.href = 'email-verified.html';
+        }, 2000);
+        return;
+      }
+      
+      console.log("Login successful:", user.email);
+      
+      // REDIRECT to dashboard for verified users
+      window.location.href = 'dashboard.html';
+      
+    } catch (err) {
+      console.error("Login error:", err);
+      setLoading(submitBtn, false);
+      
+      switch (err.code) {
+        case 'auth/invalid-email':
+          showError(document.getElementById("login-email"), "Invalid email address");
+          break;
+        case 'auth/user-not-found':
+          showError(document.getElementById("login-email"), "No account found with this email");
+          break;
+        case 'auth/wrong-password':
+          showError(document.getElementById("login-password"), "Incorrect password");
+          break;
+        case 'auth/too-many-requests':
+          showError(document.getElementById("login-email"), "Too many attempts. Account temporarily disabled");
+          break;
+        case 'auth/user-disabled':
+          showError(document.getElementById("login-email"), "This account has been disabled");
+          break;
+        default:
+          showError(document.getElementById("login-email"), "Login failed. Please try again");
+      }
+    }
+  });
+}
 
 // Forgot Password Handler
 if (forgotPasswordLink) {
@@ -403,7 +421,17 @@ async function handleSocialLogin(provider, providerName) {
       }, { merge: true });
     }
     
-    showModal(`Welcome to iConnect, ${user.displayName || user.email}!`);
+    // Store user data and REDIRECT to dashboard
+    localStorage.setItem('currentUser', JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      emailVerified: true,
+      metadata: user.metadata
+    }));
+    
+    // REDIRECT to dashboard
+    window.location.href = 'dashboard.html';
     
   } catch (error) {
     console.error(`${providerName} login failed:`, error);
@@ -431,19 +459,23 @@ async function handleSocialLogin(provider, providerName) {
 }
 
 // Google Login
-googleLoginBtn.addEventListener("click", async () => {
-  const provider = new GoogleAuthProvider();
-  provider.addScope('profile');
-  provider.addScope('email');
-  await handleSocialLogin(provider, 'Google');
-});
+if (googleLoginBtn) {
+  googleLoginBtn.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
+    await handleSocialLogin(provider, 'Google');
+  });
+}
 
 // GitHub Login
-githubLoginBtn.addEventListener("click", async () => {
-  const provider = new GithubAuthProvider();
-  provider.addScope('user:email');
-  await handleSocialLogin(provider, 'GitHub');
-});
+if (githubLoginBtn) {
+  githubLoginBtn.addEventListener("click", async () => {
+    const provider = new GithubAuthProvider();
+    provider.addScope('user:email');
+    await handleSocialLogin(provider, 'GitHub');
+  });
+}
 
 // Handle email verification success (when user clicks verification link)
 onAuthStateChanged(auth, async (user) => {

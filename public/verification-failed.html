@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Failed - iConnect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .failed-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #ef4444;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .error-details {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .error-details h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .possible-reasons {
+            text-align: left;
+            margin: 25px 0;
+        }
+
+        .possible-reasons h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .possible-reasons ul {
+            color: #6b7280;
+            padding-left: 20px;
+        }
+
+        .possible-reasons li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+
+        .btn-outline:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .support-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .support-info {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .support-methods {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .support-method {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+            min-width: 150px;
+            transition: all 0.3s ease;
+        }
+
+        .support-method:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .support-method .icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .support-method h4 {
+            color: #1f2937;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .support-method p {
+            color: #6b7280;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .contact-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="failed-container">
+        <div class="icon">❌</div>
+        <h1>Verification Failed</h1>
+        <p>We couldn't verify your email address. This could be due to an expired or invalid verification link.</p>
+
+        <div class="error-details">
+            <h3>What went wrong?</h3>
+            <p id="error-message">The verification link may have expired or already been used.</p>
+        </div>
+
+        <div class="possible-reasons">
+            <h3>Possible reasons:</h3>
+            <ul>
+                <li>Verification link has expired (links are valid for 10 minutes)</li>
+                <li>Link has already been used</li>
+                <li>Invalid or malformed verification link</li>
+                <li>Network connectivity issues</li>
+                <li>Browser cookies or cache issues</li>
+            </ul>
+        </div>
+
+        <div class="action-buttons">
+            <a href="login.html" class="btn">Try Again</a>
+            <button class="btn btn-outline" onclick="resendVerification()">Resend Verification Email</button>
+        </div>
+
+        <div class="support-section">
+            <h3>Still having trouble?</h3>
+            <p>Our support team is here to help you get verified.</p>
+
+            <div class="support-methods">
+                <div class="support-method">
+                    <div class="icon">📧</div>
+                    <h4>Email Support</h4>
+                    <p>Get help via email</p>
+                    <a href="mailto:nkosi2itech@gmail.com" class="contact-link">Send Email</a>
+                </div>
+                
+                <div class="support-method">
+                    <div class="icon">📱</div>
+                    <h4>WhatsApp</h4>
+                    <p>Chat with us</p>
+                    <a href="https://wa.me/27682138025" target="_blank" class="contact-link">Start Chat</a>
+                </div>
+            </div>
+
+            <div class="support-info">
+                <h4>Contact Information</h4>
+                <p>📧 Email: <a href="mailto:nkosi2itech@gmail

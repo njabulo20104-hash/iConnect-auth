@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - iConnect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .reset-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #10b981;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+        }
+
+        .weak { background: #ef4444; width: 33%; }
+        .medium { background: #f59e0b; width: 66%; }
+        .strong { background: #10b981; width: 100%; }
+
+        .requirements {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .requirement {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .requirement::before {
+            content: "●";
+            margin-right: 8px;
+            font-size: 8px;
+        }
+
+        .requirement.met {
+            color: #10b981;
+        }
+
+        .requirement.met::before {
+            content: "✓";
+            color: #10b981;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #6b7280;
+            border: 2px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .support-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .support-info a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .support-info a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reset-container">
+        <div class="icon">✅</div>
+        <h1>Reset Your Password</h1>
+        <p>Create a new password for your iConnect account.</p>
+
+        <form id="reset-form">
+            <div class="form-group">
+                <label for="new-password">New Password</label>
+                <div class="input-group">
+                    <input type="password" id="new-password" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('new-password')">👁️</button>
+                </div>
+                <div class="password-strength">
+                    <div>Password strength: <span id="strength-text">Weak</span></div>
+                    <div class="strength-bar">
+                        <div class="strength-fill weak" id="strength-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <div class="input-group">
+                    <input type="password" id="confirm-password" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirm-password')">👁️</button>
+                </div>
+                <div class="error-message" id="password-error">Passwords do not match</div>
+            </div>
+
+            <div class="requirements">
+                <div class="requirement" id="req-length">At least 6 characters</div>
+                <div class="requirement" id="req-uppercase">One uppercase letter</div>
+                <div class="requirement" id="req-lowercase">One lowercase letter</div>
+                <div class="requirement" id="req-number">One number</div>
+            </div>
+
+            <button type="submit" class="btn" id="reset-btn" disabled>Reset Password</button>
+        </form>
+
+        <div class="success-message" id="success-message">
+            ✅ Password reset successfully! Redirecting to login...
+        </div>
+
+        <a href="login.html" class="btn btn-secondary">Back to Login</a>
+
+        <div class="support-info">
+            Need help? Contact us:<br>
+            📧 <a href="mailto:nkosi2itech@gmail.com">nkosi2itech@gmail.com</a><br>
+            📱 <a href="https://wa.me/27682138025" target="_blank">+27 68 213 8025</a>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.textContent = '🔒';
+            } else {
+                input.type = 'password';
+                toggle.textContent = '👁️';
+            }
+        }
+
+        const newPassword = document.getElementById('new-password');
+        const confirmPassword = document.getElementById('confirm-password');
+        const passwordError = document.getElementById('password-error');
+        const resetBtn = document.getElementById('reset-btn');
+        const strengthText = document.getElementById('strength-text');
+        const strengthFill = document.getElementById('strength-fill');
+        const successMessage = document.getElementById('success-message');
+
+        // Password strength checker
+        newPassword.addEventListener('input', checkPasswordStrength);
+        confirmPassword.addEventListener('input', checkPasswordsMatch);
+
+        function checkPasswordStrength() {
+            const password = newPassword.value;
+            let strength = 0;
+            const requirements = {
+                length: password.length >= 6,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password)
+            };
+
+            // Update requirement indicators
+            document.getElementById('req-length').classList.toggle('met', requirements.length);
+            document.getElementById('req-uppercase').classList.toggle('met', requirements.uppercase);
+            document.getElementById('req-lowercase').classList.toggle('met', requirements.lowercase);
+            document.getElementById('req-number').classList.toggle('met', requirements.number);
+
+            // Calculate strength
+            strength += requirements.length ? 1 : 0;
+            strength += requirements.uppercase ? 1 : 0;
+            strength += requirements.lowercase ? 1 : 0;
+            strength += requirements.number ? 1 : 0;
+
+            // Update strength indicator
+            if (strength === 0) {
+                strengthText.textContent = 'Weak';
+                strengthFill.className = 'strength-fill weak';
+            } else if (strength <= 2) {
+                strengthText.textContent = 'Medium';
+                strengthFill.className = 'strength-fill medium';
+            } else {
+                strengthText.textContent = 'Strong';
+                strengthFill.className = 'strength-fill strong';
+            }
+
+            checkFormValidity();
+        }
+
+        function checkPasswordsMatch() {
+            const match = newPassword.value === confirmPassword.value;
+            passwordError.style.display = match ? 'none' : 'block';
+            checkFormValidity();
+        }
+
+        function checkFormValidity() {
+            const isStrong = strengthFill.classList.contains('strong');
+            const passwordsMatch = newPassword.value === confirmPassword.value;
+            const hasPassword = newPassword.value.length >= 6;
+            
+            resetBtn.disabled = !(isStrong && passwordsMatch && hasPassword);
+        }
+
+        // Form submission
+        document.getElementById('reset-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Simulate API call
+            resetBtn.disabled = true;
+            resetBtn.textContent = 'Resetting...';
+            
+            setTimeout(() => {
+                successMessage.style.display = 'block';
+                resetBtn.style.display = 'none';
+                
+                // Redirect to login after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

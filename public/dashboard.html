@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - iConnect</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>iConnect</h1>
+            <div class="user-menu">
+                <span id="username">User</span>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </header>
+        
+        <main class="dashboard-main">
+            <div class="welcome-card">
+                <h2 id="welcome-message">Welcome back!</h2>
+                <p>You have successfully logged into your iConnect account.</p>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Account Status</h3>
+                        <p>Verified ✅</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Member Since</h3>
+                        <p id="join-date">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        // Simple dashboard logic
+        function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            document.getElementById('username').textContent = user.displayName || user.email || 'User';
+            document.getElementById('welcome-message').textContent = `Welcome back, ${user.displayName || user.email || 'User'}!`;
+            
+            if (user.metadata && user.metadata.creationTime) {
+                const joinDate = new Date(user.metadata.creationTime).toLocaleDateString();
+                document.getElementById('join-date').textContent = joinDate;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // Check if user is logged in
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (!user.uid) {
+            window.location.href = 'login.html';
+        } else {
+            loadUserData();
+        }
+    </script>
+</body>
+</html>

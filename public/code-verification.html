@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Verification Code - iConnect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .verification-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #3b82f6;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .email-highlight {
+            color: #1f2937;
+            font-weight: 600;
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .code-input {
+            width: 50px;
+            height: 60px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .code-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .code-input.filled {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #6b7280;
+            border: 2px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .resend-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 15px 0;
+            display: inline-block;
+        }
+
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+
+        .countdown {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 10px 0;
+        }
+
+        .support-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .support-info a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .support-info a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="icon">🔒</div>
+        <h1>Enter Verification Code</h1>
+        <p>We sent a 6-digit code to:</p>
+        <div class="email-highlight" id="user-email">your email address</div>
+        <p>Enter the code below to reset your password.</p>
+
+        <div class="code-inputs">
+            <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        </div>
+
+        <div class="error-message" id="error-message">Invalid code. Please try again.</div>
+
+        <div class="countdown" id="countdown">Code expires in 05:00</div>
+
+        <button class="btn" id="verify-btn" disabled>Verify Code</button>
+        
+        <a href="#" class="resend-link" id="resend-link">Resend Code</a>
+
+        <a href="login.html" class="btn btn-secondary">Back to Login</a>
+
+        <div class="support-info">
+            Need help? Contact us:<br>
+            📧 <a href="mailto:nkosi2itech@gmail.com">nkosi2itech@gmail.com</a><br>
+            📱 <a href="https://wa.me/27682138025" target="_blank">+27 68 213 8025</a>
+        </div>
+    </div>
+
+    <script>
+        // Get user email from URL or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email') || JSON.parse(localStorage.getItem('resetEmail') || '""');
+        if (email) {
+            document.getElementById('user-email').textContent = email;
+        }
+
+        // Code input handling
+        const inputs = document.querySelectorAll('.code-input');
+        const verifyBtn = document.getElementById('verify-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+                
+                // Only allow numbers
+                if (!/^\d*$/.test(value)) {
+                    e.target.value = '';
+                    return;
+                }
+
+                if (value) {
+                    e.target.classList.add('filled');
+                    
+                    // Auto-focus next input
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                } else {
+                    e.target.classList.remove('filled');
+                }
+
+                // Check if all inputs are filled
+                const allFilled = Array.from(inputs).every(input => input.value);
+                verifyBtn.disabled = !allFilled;
+
+                // Hide error when user starts typing again
+                errorMessage.style.display = 'none';
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData('text').slice(0, 6);
+                pasteData.split('').forEach((char, i) => {
+                    if (inputs[i] && /^\d$/.test(char)) {
+                        inputs[i].value = char;
+                        inputs[i].classList.add('filled');
+                    }
+                });
+                
+                // Focus last input and check if all are filled
+                const lastFilledIndex = Math.min(pasteData.length, inputs.length - 1);
+                inputs[lastFilledIndex].focus();
+                verifyBtn.disabled = !Array.from(inputs).every(input => input.value);
+            });
+        });
+
+        // Verify button handler
+        verifyBtn.addEventListener('click', () => {
+            const code = Array.from(inputs).map(input => input.value).join('');
+            
+            // Simulate verification (replace with actual API call)
+            if (code === '123456') { // Demo code
+                window.location.href = 'reset.html';
+            } else {
+                errorMessage.style.display = 'block';
+                // Clear inputs
+                inputs.forEach(input => {
+                    input.value = '';
+                    input.classList.remove('filled');
+                });
+                inputs[0].focus();
+                verifyBtn.disabled = true;
+            }
+        });
+
+        // Countdown timer
+        let timeLeft = 300; // 5 minutes in seconds
+        const countdownElement = document.getElementById('countdown');
+        const resendLink = document.getElementById('resend-link');
+
+        function updateCountdown() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            countdownElement.textContent = `Code expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                countdownElement.textContent = "Code has expired";
+                countdownElement.style.color = "#ef4444";
+                resendLink.style.display = 'inline-block';
+            }
+        }
+
+        updateCountdown();
+
+        // Resend code handler
+        resendLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('New verification code has been sent!');
+            timeLeft = 300; // Reset countdown
+            updateCountdown();
+            countdownElement.style.color = "#6b7280";
+            resendLink.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
