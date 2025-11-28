@@ -1,2 +1,7 @@
-"[build]
-publish = \".\"" | Out-File -FilePath netlify.toml -Encoding ASCII
+[build]
+  publish = "."
+  command = "echo 'No build command'"
+
+[build.environment]
+  NODE_VERSION = "18"
+
