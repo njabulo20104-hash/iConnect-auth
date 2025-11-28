@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - iConnect</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-wrapper">
+            <div class="form-panel">
+                <div class="form-container">
+                    <div class="form-header">
+                        <div class="logo">
+                            <img src="images/nkosi-it-logo.jpg" alt="iConnect" class="logo-image">
+                            <span class="logo-text">iConnect</span>
+                        </div>
+                        <h2>Reset Your Password</h2>
+                        <p>Create a new password for your account</p>
+                    </div>
+
+                    <form id="reset-password-form" class="auth-form active">
+                        <div class="input-group">
+                            <label for="new-password">New Password</label>
+                            <input type="password" id="new-password" placeholder="Enter new password" required minlength="6">
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <input type="password" id="confirm-password" placeholder="Confirm new password" required>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <span class="btn-text">Reset Password</span>
+                            <div class="btn-loader" style="display: none;">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+
+                        <p class="switch-form">
+                            <a href="login.html">Back to Login</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="success-modal">
+        <div class="modal-content">
+            <h3> Password Reset Successful!</h3>
+            <p id="user-email-message">Logged in as user@example.com</p>
+            <p>Redirecting to login...</p>
+        </div>
+    </div>
+
+    <script type="module" src="reset.js"></script>
+</body>
+</html>

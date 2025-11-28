@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iConnect Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+        }
+        .logout-btn {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .logout-btn:hover {
+            background: #c53030;
+        }
+        .welcome-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: var(--background-secondary);
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <img src="images/nkosi-it-logo.jpg" alt="iConnect" class="logo-image">
+                <span class="logo-text">iConnect</span>
+            </div>
+            <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            Loading your dashboard...
+        </div>
+
+        <!-- Dashboard Content (hidden until auth check) -->
+        <div id="dashboard-content" style="display: none;">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1>Welcome, <span id="user-name">User</span>! 👋</h1>
+                <p>Great to have you back in your iConnect dashboard.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Connections</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Messages</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Notifications</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="welcome-section">
+                <h2>Quick Actions</h2>
+                <div class="stats-grid">
+                    <div class="stat-card" style="cursor: pointer;" onclick="alert('Profile feature coming soon!')">
+                        <h3>👤 Update Profile</h3>
+                        <p>Customize your account</p>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer;" onclick="alert('Connections feature coming soon!')">
+                        <h3>👥 Find Connections</h3>
+                        <p>Connect with others</p>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer;" onclick="alert('Messages feature coming soon!')">
+                        <h3>💬 Start Chat</h3>
+                        <p>Send messages</p>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer;" onclick="alert('Settings feature coming soon!')">
+                        <h3>⚙️ Settings</h3>
+                        <p>Configure preferences</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="welcome-section">
+                <h2>Recent Activity</h2>
+                <div id="recent-activity">
+                    <p>🎉 Welcome to iConnect! Your journey starts here.</p>
+                    <p>📅 Account created successfully</p>
+                    <p>🔐 Login completed securely</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCDGnvIzzPBXBlA2R7EnoNJBqn6dtnOjIE",
+            authDomain: "iconnect-54a24.firebaseapp.com",
+            projectId: "iconnect-54a24",
+            storageBucket: "iconnect-54a24.firebasestorage.app",
+            messagingSenderId: "511444033288",
+            appId: "1:511444033288:web:bf41ff65fc4f32772256bd"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const logoutBtn = document.getElementById('logout-btn');
+        const loadingElement = document.getElementById('loading');
+        const contentElement = document.getElementById('dashboard-content');
+
+        // Check authentication state
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is logged in - show dashboard
+                try {
+                    console.log("User is logged in:", user.email);
+                    
+                    // Get user data from Firestore
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        document.getElementById('user-name').textContent = userData.name;
+                        console.log("User data loaded from Firestore");
+                    } else {
+                        // Fallback to auth data
+                        document.getElementById('user-name').textContent = user.displayName || user.email;
+                        console.log("Using basic auth data");
+                    }
+
+                    // Show dashboard content
+                    loadingElement.style.display = 'none';
+                    contentElement.style.display = 'block';
+
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                    document.getElementById('user-name').textContent = user.email;
+                    loadingElement.style.display = 'none';
+                    contentElement.style.display = 'block';
+                }
+            } else {
+                // User is not logged in - redirect to login
+                console.log("User not logged in, redirecting to home page");
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        // Logout functionality
+        logoutBtn.addEventListener('click', async () => {
+            console.log("Logout button clicked");
+            try {
+                await signOut(auth);
+                console.log("User signed out successfully");
+                // The redirect will happen automatically via onAuthStateChanged
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Logout failed. Please try again.');
+            }
+        });
+
+        console.log("Dashboard initialized");
+    </script>
+</body>
+</html>
