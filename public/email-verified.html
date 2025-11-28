@@ -1,23 +1,208 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Email Verified - iConnect</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification Sent - iConnect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .verification-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success { color: #10b981; }
+        .warning { color: #f59e0b; }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .email-highlight {
+            color: #1f2937;
+            font-weight: 600;
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .instructions {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            text-align: left;
+            margin: 25px 0;
+        }
+
+        .instructions h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            color: #6b7280;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .support-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .support-info a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .support-info a:hover {
+            text-decoration: underline;
+        }
+
+        .countdown {
+            font-size: 14px;
+            color: #ef4444;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="login-wrapper">
-            <div class="form-panel">
-                <div class="form-container" style="text-align: center;">
-                    <h2>✅ Email Verified!</h2>
-                    <p>Your email has been successfully verified.</p>
-                    <p>You can now sign in to your iConnect account.</p>
-                    <a href="login.html" class="submit-btn" style="display: inline-block; text-decoration: none;">
-                        Sign In Now
-                    </a>
-                </div>
-            </div>
+    <div class="verification-container">
+        <div class="icon warning">📧</div>
+        <h1>Check Your Email</h1>
+        <p>We've sent a verification link to:</p>
+        <div class="email-highlight" id="user-email">your email address</div>
+        <p>Click the link in the email to verify your account and start using iConnect.</p>
+
+        <div class="countdown" id="countdown">Link expires in 10:00</div>
+
+        <div class="instructions">
+            <h3>Didn't receive the email?</h3>
+            <ol>
+                <li>Check your spam or junk folder</li>
+                <li>Make sure you entered the correct email address</li>
+                <li>Wait a few minutes and try again</li>
+                <li>Contact support if the issue persists</li>
+            </ol>
+        </div>
+
+        <button class="btn" onclick="resendVerification()">Resend Verification Email</button>
+        <a href="login.html" class="btn btn-secondary">Back to Login</a>
+
+        <div class="support-info">
+            Need help? Contact us:<br>
+            📧 <a href="mailto:nkosi2itech@gmail.com">nkosi2itech@gmail.com</a><br>
+            📱 <a href="https://wa.me/27682138025" target="_blank">+27 68 213 8025</a>
         </div>
     </div>
+
+    <script>
+        // Get user email from localStorage
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (user.email) {
+            document.getElementById('user-email').textContent = user.email;
+        }
+
+        // Countdown timer
+        let timeLeft = 600; // 10 minutes in seconds
+        const countdownElement = document.getElementById('countdown');
+
+        function updateCountdown() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            countdownElement.textContent = `Link expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                countdownElement.textContent = "Verification link has expired";
+                countdownElement.style.color = "#ef4444";
+            }
+        }
+
+        updateCountdown();
+
+        function resendVerification() {
+            alert('Verification email has been resent! Please check your inbox.');
+            // Here you would typically call your resend verification function
+            timeLeft = 600; // Reset countdown
+            updateCountdown();
+        }
+    </script>
 </body>
 </html>
