@@ -1,9 +1,6 @@
-[build]
+﻿[build]
   publish = "."
   command = "echo 'No build command'"
 
 [build.environment]
   NODE_VERSION = "18"
-
-[functions]
-  node_bundle = true
