@@ -1,4 +1,4 @@
-const { getAuth } = require('firebase-admin/auth');
+/* const { getAuth } = require('firebase-admin/auth');
 const { initializeApp, cert } = require('firebase-admin/app');
 
 // Initialize Firebase Admin
@@ -72,3 +72,4 @@ exports.handler = async (event, context) => {
     };
   }
 };
+*/
