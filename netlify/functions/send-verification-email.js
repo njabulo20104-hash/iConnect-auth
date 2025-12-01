@@ -1,7 +1,5 @@
-const { Resend } = require('resend');
-
-// Initialize Resend with your API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// C:/netlify/functions/send-verification-email.js
+const sgMail = require('@sendgrid/mail');
 
 exports.handler = async (event, context) => {
   // Only allow POST requests
@@ -23,10 +21,13 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Send email via Resend
-    const { data, error } = await resend.emails.send({
-      from: 'iConnect <onboarding@resend.dev>', // Change to your domain later
+    // Set SendGrid API key from environment variable
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    // Send email via SendGrid
+    const msg = {
       to: to,
+      from: 'iConnect <onboarding@resend.dev>', // TEMPORARY - change to your verified SendGrid email
       subject: 'Verify your iConnect account',
       html: `
         <!DOCTYPE html>
@@ -99,30 +100,26 @@ exports.handler = async (event, context) => {
         </body>
         </html>
       `
-    });
+    };
 
-    if (error) {
-      console.error('Resend error:', error);
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: error.message })
-      };
-    }
+    await sgMail.send(msg);
 
     return {
       statusCode: 200,
       body: JSON.stringify({ 
         success: true, 
-        message: 'Verification email sent successfully',
-        data: data 
+        message: 'Verification email sent successfully'
       })
     };
 
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('SendGrid error:', error.response?.body || error.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' })
+      body: JSON.stringify({ 
+        error: 'Failed to send verification email',
+        details: error.response?.body || error.message 
+      })
     };
   }
 };
