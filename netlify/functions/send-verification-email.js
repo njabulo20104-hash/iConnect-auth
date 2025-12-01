@@ -1,4 +1,4 @@
-// netlify/functions/send-verification-email.js
+/* // netlify/functions/send-verification-email.js
 const nodemailer = require('nodemailer');
 
 exports.handler = async (event, context) => {
@@ -142,3 +142,4 @@ exports.handler = async (event, context) => {
     };
   }
 };
+*/
